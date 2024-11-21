@@ -63,7 +63,7 @@ class NetworkManager {
         case 500..<600:
             throw NetworkError.serverError
         default:
-            throw NetworkError.unknown
+            return output.data
         }
     }
     

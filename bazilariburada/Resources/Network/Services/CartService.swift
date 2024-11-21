@@ -60,4 +60,15 @@ class CartService {
             })
             .store(in: &cancellables)
     }
+    
+    func clearCartItems(token: String) {
+        networkManager.request(endpoint: "\(cartKeyword)", method: .DELETE, requiresAuthentication: true, token: token)
+            .decode(type: ApiResponse<Cart>.self, decoder: JSONDecoder())
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] response in
+                print(response.message)
+                self?.cart = response.data
+            })
+            .store(in: &cancellables)
+    }
 }
