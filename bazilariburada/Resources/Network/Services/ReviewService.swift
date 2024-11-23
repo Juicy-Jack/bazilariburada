@@ -10,43 +10,40 @@ import Combine
 
 class ReviewService {
     private let networkManager = NetworkManager.shared
-    private var cancellables = Set<AnyCancellable>()
+    private var reviewSubscription: AnyCancellable?
     
     @Published var productReviews: [Review]?
     @Published var sentReview: Review?
+    @Published var reviewDeletedMessage: String?
     
     func getProductReviews(productID: String) {
-        networkManager.request(endpoint: "/products/\(productID)/reviews", method: .GET)
-            .decode(type: ApiResponse<[Review]>.self, decoder: JSONDecoder())
+        
+        reviewSubscription = networkManager.performRequest(endpoint: "/products/\(productID)/reviews", method: .GET)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] response in
-                print(response.status)
-                print(response.message)
                 self?.productReviews = response.data
+                self?.reviewSubscription?.cancel()
             })
-            .store(in: &cancellables)
     }
     
     func addProductReview(token: String, productID: String, comment: String, rating: Int) {
         let body = ["comment": comment, "rating": rating] as [String : Any]
-        networkManager.request(endpoint: "/products/\(productID)/reviews", method: .POST, body: body, requiresAuthentication: true, token: token)
-            .decode(type: ApiResponse<Review>.self, decoder: JSONDecoder())
+        
+        reviewSubscription = networkManager.performRequest(endpoint: "/products/\(productID)/reviews", method: .POST, body: body, requiresAuthentication: true, token: token)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] response in
-                print(response.message)
                 self?.sentReview = response.data
-                print(self?.sentReview?.comment ?? "")
+                self?.reviewSubscription?.cancel()
             })
-            .store(in: &cancellables)
     }
     
     func deleteUserReview(token: String, productID: String) {
-        networkManager.request(endpoint: "/products/\(productID)/reviews", method: .DELETE, requiresAuthentication: true, token: token)
-            .decode(type: ApiResponse<EmptyResponseData>.self, decoder: JSONDecoder())
+        
+        reviewSubscription = networkManager.performRequest(endpoint: "/products/\(productID)/reviews", method: .DELETE, requiresAuthentication: true, token: token)
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { response in
-                print(response.message)
+            .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] response in
+                self?.reviewDeletedMessage = response.message
+                self?.reviewSubscription?.cancel()
             })
-            .store(in: &cancellables)
     }
 }

@@ -11,29 +11,28 @@ import Combine
 class UserService {
     private let usersKeyword = "/users/profile"
     private let networkManager = NetworkManager.shared
-    private var cancellables = Set<AnyCancellable>()
+    private var userSubscription: AnyCancellable?
     
     @Published var user: User?
+    @Published var profileUpdatedData: String?
     
     func getUserProfile(token: String) {
-        networkManager.request(endpoint: usersKeyword, method: .GET, requiresAuthentication: true, token: token)
-            .decode(type: ApiResponse<User>.self, decoder: JSONDecoder())
+        
+        userSubscription = networkManager.performRequest(endpoint: usersKeyword, method: .GET, requiresAuthentication: true, token: token)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] response in
-                print(response.message)
                 self?.user = response.data
+                self?.userSubscription?.cancel()
             })
-            .store(in: &cancellables)
     }
     
     func updateUserProfile(token: String, username: String, password: String) {
         let body = ["username": username, "password": password]
-        networkManager.request(endpoint: usersKeyword, method: .PATCH, body: body, requiresAuthentication: true, token: token)
-            .decode(type: ApiResponse<UpdateUserProfileResponseData>.self, decoder: JSONDecoder())
+        
+        userSubscription = networkManager.performRequest(endpoint: usersKeyword, method: .PATCH, body: body, requiresAuthentication: true, token: token)
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { response in
-                print(response.data?.message ?? "")
+            .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] response in
+                self?.profileUpdatedData = response.data
             })
-            .store(in: &cancellables)
     }
 }

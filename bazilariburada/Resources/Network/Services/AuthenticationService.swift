@@ -14,66 +14,69 @@ class AuthenticationService {
     private let authKeyword = "/auth"
     
     private let networkManager = NetworkManager.shared
-    private var cancellables = Set<AnyCancellable>()
+    
+    private var authenticationSubscription: AnyCancellable?
+        
     @Published var registerData: RegisterResponseData?
     @Published var loginData: LoginResponseData?
-    @Published var forgotPasswordData: ForgotPasswordResponseData?
+    @Published var forgotPasswordData: ForgetPasswordResponseData?
+    @Published var activateAccountMessage: String?
+    @Published var resetPasswordMessage: String?
+    
     
     func register(username: String, email: String, password: String) {
         let body = ["username": username, "email": email, "password": password]
-        networkManager.request(endpoint: "\(authKeyword)/register", method: .POST, body: body)
-            .decode(type: ApiResponse<RegisterResponseData>.self, decoder: JSONDecoder())
+        
+        authenticationSubscription = networkManager.performRequest(endpoint: "\(authKeyword)/register", method: .POST, body: body)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] response in
-                print(response.message) // for development purposes
                 self?.registerData = response.data
+                self?.authenticationSubscription?.cancel()
             })
-            .store(in: &cancellables)
     }
     
     func activateAccount(email: String, activationCode: String) {
         let body = ["email": email, "activationCode": activationCode]
-        networkManager.request(endpoint: "\(authKeyword)/activate", method: .PATCH, body: body)
-            .decode(type: ApiResponse<EmptyResponseData>.self, decoder: JSONDecoder())
+
+        authenticationSubscription = networkManager.performRequest(endpoint: "\(authKeyword)/activate", method: .PATCH, body: body)
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { response in
-                print(response.message)
+            .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] response in
+                self?.activateAccountMessage = response.message
+                self?.authenticationSubscription?.cancel()
             })
-            .store(in: &cancellables)
     }
 
     func login(username: String, password: String) {
         let body = ["username": username, "password": password]
-        networkManager.request(endpoint: "\(authKeyword)/login", method: .POST, body: body)
-            .decode(type: ApiResponse<LoginResponseData>.self, decoder: JSONDecoder())
+        
+        authenticationSubscription = networkManager.performRequest(endpoint: "\(authKeyword)/login", method: .POST, body: body)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] response in
                 self?.loginData = response.data
-                print(response.message) // for development purposes
+                self?.authenticationSubscription?.cancel()
             })
-            .store(in: &cancellables)
     }
     
     func forgetPassword(email: String) {
         let body = ["email": email]
-        networkManager.request(endpoint: "\(authKeyword)/forgot-password", method: .POST, body: body)
-            .decode(type: ApiResponse<ForgotPasswordResponseData>.self, decoder: JSONDecoder())
+        
+        authenticationSubscription = networkManager.performRequest(endpoint: "\(authKeyword)/forgot-password", method: .POST, body: body)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] response in
-                print(response.message)
                 self?.forgotPasswordData = response.data
+                self?.authenticationSubscription?.cancel()
             })
-            .store(in: &cancellables)
+
     }
     
     func resetPassword(resetPasswordCode: String, newPassword: String) {
         let body = ["resetPasswordCode": resetPasswordCode, "newPassword:": newPassword]
-        networkManager.request(endpoint: "\(authKeyword)/reset-password", method: .POST, body: body)
-            .decode(type: ApiResponse<EmptyResponseData>.self, decoder: JSONDecoder())
+        
+        authenticationSubscription = networkManager.performRequest(endpoint: "\(authKeyword)/reset-password", method: .POST, body: body)
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { response in
-                print(response.message)
+            .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] response in
+                self?.resetPasswordMessage = response.message
+                self?.authenticationSubscription?.cancel()
             })
-            .store(in: &cancellables)
     }
 }
