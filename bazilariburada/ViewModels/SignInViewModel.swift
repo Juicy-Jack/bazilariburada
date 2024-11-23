@@ -12,4 +12,8 @@ class SignInViewModel {
     func Login(username: String, password: String) {
         
     }
+    
+    func register(username: String, email: String, password: String) {
+        
+    }
 }
