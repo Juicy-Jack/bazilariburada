@@ -17,7 +17,7 @@ class ProductService {
     @Published var allProducts: AllProductResponseData?
     @Published var productByID: Product?
     
-    func getAllProduct() {
+    func getAllProducts() {
         networkManager.request(endpoint: "\(productsKeyword)", method: .GET)
             .decode(type: ApiResponse<AllProductResponseData>.self, decoder: JSONDecoder())
             .receive(on: DispatchQueue.main)

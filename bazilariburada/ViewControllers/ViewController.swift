@@ -33,8 +33,9 @@ class ViewController: UIViewController {
     }
     
     @IBAction func testLogin(_ sender: UIButton) {
-        autService.login(username: "furkitolki", password: "12345678")
+        autService.login(username: "furkido", password: "12345678")
         userToken = autService.loginData?.accessToken ?? ""
+        print(userToken)
     }
    
     @IBAction func testforget(_ sender: UIButton) {
@@ -68,37 +69,46 @@ class ViewController: UIViewController {
     
     ///MARK: Order Testing
     @IBAction func testPlaceOrder(_ sender: UIButton) {
+        orderService.placeAnOrder(token: userToken)
     }
     
     @IBAction func testGetOrderByID(_ sender: UIButton) {
+        orderService.getUsersOrderByID(token: userToken, orderID: orderService.placedOrder?.orderID ?? "")
     }
     
     @IBAction func testGetAllOrders(_ sender: UIButton) {
+        orderService.getUsersAllOrders(token: userToken)
     }
     
     ///MARK: Product Testing
     @IBAction func testGetAllProducts(_ sender: UIButton) {
+        productService.getAllProducts()
     }
     
     @IBAction func testGetByID(_ sender: UIButton) {
+        productService.getProductByID(productID: "672ca178803e6ff577ae0b3a")
     }
     
     ///MARK: Review Testing
     @IBAction func testGetProductReviews(_ sender: UIButton) {
+        reviewService.getProductReviews(productID: "672ca178803e6ff577ae0b3a")
     }
     
     @IBAction func testAddReview(_ sender: UIButton) {
+        reviewService.addProductReview(token: userToken, productID: "672ca178803e6ff577ae0b3a", comment: "stephen curry how I ball", rating: 5)
     }
     
     @IBAction func testRemoveReview(_ sender: UIButton) {
+        reviewService.deleteUserReview(token: userToken, productID: "672ca178803e6ff577ae0b3a")
     }
     
     ///MARK: User Testing
-    
     @IBAction func testGetProfile(_ sender: UIButton) {
+        userService.getUserProfile(token: userToken)
     }
     
     @IBAction func testUpdateProfile(_ sender: UIButton) {
+        userService.updateUserProfile(token: userToken, username: "furkido", password: "12345678")
     }
 }
 

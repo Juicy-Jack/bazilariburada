@@ -48,8 +48,8 @@ class AuthenticationService {
             .decode(type: ApiResponse<LoginResponseData>.self, decoder: JSONDecoder())
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] response in
-                print(response.message) // for development purposes
                 self?.loginData = response.data
+                print(response.message) // for development purposes
             })
             .store(in: &cancellables)
     }

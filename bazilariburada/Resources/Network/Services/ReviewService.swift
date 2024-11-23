@@ -16,10 +16,11 @@ class ReviewService {
     @Published var sentReview: Review?
     
     func getProductReviews(productID: String) {
-        networkManager.request(endpoint: "products/\(productID)/reviews", method: .GET)
+        networkManager.request(endpoint: "/products/\(productID)/reviews", method: .GET)
             .decode(type: ApiResponse<[Review]>.self, decoder: JSONDecoder())
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] response in
+                print(response.status)
                 print(response.message)
                 self?.productReviews = response.data
             })
@@ -28,18 +29,19 @@ class ReviewService {
     
     func addProductReview(token: String, productID: String, comment: String, rating: Int) {
         let body = ["comment": comment, "rating": rating] as [String : Any]
-        networkManager.request(endpoint: "products/\(productID)/reviews", method: .POST, body: body, requiresAuthentication: true, token: token)
+        networkManager.request(endpoint: "/products/\(productID)/reviews", method: .POST, body: body, requiresAuthentication: true, token: token)
             .decode(type: ApiResponse<Review>.self, decoder: JSONDecoder())
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] response in
                 print(response.message)
                 self?.sentReview = response.data
+                print(self?.sentReview?.comment ?? "")
             })
             .store(in: &cancellables)
     }
     
     func deleteUserReview(token: String, productID: String) {
-        networkManager.request(endpoint: "products/\(productID)/reviews", method: .DELETE, requiresAuthentication: true, token: token)
+        networkManager.request(endpoint: "/products/\(productID)/reviews", method: .DELETE, requiresAuthentication: true, token: token)
             .decode(type: ApiResponse<EmptyResponseData>.self, decoder: JSONDecoder())
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { response in
