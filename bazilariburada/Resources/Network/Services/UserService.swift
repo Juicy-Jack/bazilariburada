@@ -10,6 +10,7 @@ import Combine
 
 class UserService {
     private let usersKeyword = "/users/profile"
+    
     private let networkManager = NetworkManager.shared
     private var userSubscription: AnyCancellable?
     

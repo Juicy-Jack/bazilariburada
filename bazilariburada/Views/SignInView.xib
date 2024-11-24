@@ -46,10 +46,10 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8WQ-cx-3vU">
-                    <rect key="frame" x="159" y="583" width="75" height="35"/>
+                    <rect key="frame" x="124" y="583" width="145" height="35"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <state key="normal" title="Button"/>
-                    <buttonConfiguration key="configuration" style="filled" title="Button"/>
+                    <buttonConfiguration key="configuration" style="filled" title="Open Test Page"/>
                     <connections>
                         <action selector="pushTestView:" destination="-1" eventType="touchUpInside" id="PwW-u1-2rh"/>
                     </connections>

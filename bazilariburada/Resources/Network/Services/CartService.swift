@@ -12,7 +12,6 @@ class CartService {
     private let cartKeyword = "/cart"
     
     private let networkManager = NetworkManager.shared
-    
     private var cartSubscription: AnyCancellable?
     
     @Published var cart: Cart?

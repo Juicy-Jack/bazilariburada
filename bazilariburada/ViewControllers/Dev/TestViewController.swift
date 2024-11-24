@@ -39,11 +39,11 @@ class TestViewController: UIViewController {
     }
    
     @IBAction func testforget(_ sender: UIButton) {
-        autService.forgetPassword(email: "furkndognn@gmail.com")
+        autService.getResetPasswordCode(email: "furkndognn@gmail.com")
     }
     
     @IBAction func testReset(_ sender: UIButton) {
-        autService.resetPassword(resetPasswordCode: "123512", newPassword: "12345678")
+        autService.resetPassword(securityCode: "123512", newPassword: "12345678")
     }
     
     ///MARK: Cart Testing

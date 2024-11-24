@@ -14,12 +14,11 @@ class AuthenticationService {
     private let authKeyword = "/auth"
     
     private let networkManager = NetworkManager.shared
-    
     private var authenticationSubscription: AnyCancellable?
         
     @Published var registerData: RegisterResponseData?
     @Published var loginData: LoginResponseData?
-    @Published var forgotPasswordData: ForgetPasswordResponseData?
+    @Published var forgetPasswordData: ForgetPasswordResponseData?
     @Published var activateAccountMessage: String?
     @Published var resetPasswordMessage: String?
     
@@ -57,20 +56,20 @@ class AuthenticationService {
             })
     }
     
-    func forgetPassword(email: String) {
+    func getResetPasswordCode(email: String) {
         let body = ["email": email]
         
         authenticationSubscription = networkManager.performRequest(endpoint: "\(authKeyword)/forgot-password", method: .POST, body: body)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] response in
-                self?.forgotPasswordData = response.data
+                self?.forgetPasswordData = response.data
                 self?.authenticationSubscription?.cancel()
             })
 
     }
     
-    func resetPassword(resetPasswordCode: String, newPassword: String) {
-        let body = ["resetPasswordCode": resetPasswordCode, "newPassword:": newPassword]
+    func resetPassword(securityCode: String, newPassword: String) {
+        let body = ["resetPasswordCode": securityCode, "newPassword:": newPassword]
         
         authenticationSubscription = networkManager.performRequest(endpoint: "\(authKeyword)/reset-password", method: .POST, body: body)
             .receive(on: DispatchQueue.main)
